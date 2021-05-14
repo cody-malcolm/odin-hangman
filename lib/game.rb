@@ -5,6 +5,7 @@ require_relative 'output'
 # manages the Game state (for a single Game)
 class Game
   include Output
+
   def initialize(filename = nil)
     if filename.nil?
       @secret_word = load_secret_word
@@ -14,6 +15,8 @@ class Game
       @secret_word = 'hola'
       @guessed_characters = %i[h o l y]
     end
+
+    @total_guesses = 8
   end
 
   def play
@@ -25,13 +28,14 @@ class Game
   private
 
   def load_secret_word
-    # TODO: Implement this
+    # TODO: Add else handling
+    dictionary = File.readlines('5desk.txt') if File.exist?('5desk.txt')
+    dictionary.filter { |line| line.strip.length.between?(5, 12) }.sample.downcase.strip
   end
 
   def calculate_remaining_guesses
     # number of characters in guessed_characters that are not in secret_word
-    # TODO: refactor the magic number
-    8 - @guessed_characters.count { |c| !@secret_word.include?(c.to_s) }
+    @total_guesses - @guessed_characters.count { |c| !@secret_word.include?(c.to_s) }
   end
 
   def game_over?
@@ -41,11 +45,12 @@ class Game
 
   def handle_game_over
     if calculate_remaining_guesses.zero?
-      # handle lose case
+      puts "Sorry, you're out of guesses! The secret word was '#{@secret_word}'."
     else
       print_congratulations
-      # print appropriate rest of message
+      puts "You guessed the secret word! (#{@secret_word})"
     end
+    puts ''
   end
 
   def take_turn
@@ -60,6 +65,8 @@ class Game
     else
       handle_guess(selection)
     end
+
+    puts ''
   end
 
   def handle_save
@@ -85,7 +92,7 @@ class Game
   end
 
   def print_status
-    puts "The secret word is: #{redacted_word}"
+    puts "The secret word is: #{redacted_word} (#{@secret_word.length} letters)"
     puts "The letters that have been guessed are: #{@guessed_characters.join(' ')}"
     puts "You have #{calculate_remaining_guesses} guesses remaining."
   end
