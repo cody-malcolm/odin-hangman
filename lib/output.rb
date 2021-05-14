@@ -2,7 +2,7 @@
 
 # Handles the output of command line messages
 module Output
-  def print_welcome_banner
+  def print_banner
     print ' ' * 10
     puts ' ****************************** '
     print ' ' * 10
